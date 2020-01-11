@@ -102,7 +102,6 @@ implementation
 { TLaunchData.SetLocGrav(const Value: double)
 
   Assign a value to the local local gravity property. }
-
 procedure TLaunchData.SetLocGrav(const Value: double);
 begin
   FLocGrav := Value;
@@ -232,8 +231,8 @@ procedure TLaunchData.PhaseTwo(BackCalc: boolean);
 
   function CalcPressure(const WaterMass: double; out Pressure: double): double;
   begin
-    Pressure := (FInitPres + FAtmPres) * (FAirVol /
-      (FAirVol + FWaterVol - WaterMass / FWaterDense)) ** FAdiIndex;
+    Pressure := (FInitPres + FAtmPres) *
+      (FAirVol / (FAirVol + FWaterVol - WaterMass / FWaterDense)) ** FAdiIndex;
     Result := Pressure;
   end;
 

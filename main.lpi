@@ -5,11 +5,8 @@
     <PathDelim Value="\"/>
     <General>
       <Flags>
-        <SaveClosedFiles Value="False"/>
-        <SaveJumpHistory Value="False"/>
-        <SaveFoldState Value="False"/>
+        <SaveOnlyProjectUnits Value="True"/>
       </Flags>
-      <SessionStorage Value="None"/>
       <MainUnit Value="0"/>
       <AutoCreateForms Value="False"/>
       <Title Value="Rocket Simulation Program"/>
@@ -25,7 +22,7 @@
       <MajorVersionNr Value="4"/>
       <CharSet Value="04B0"/>
     </VersionInfo>
-    <BuildModes Count="1">
+    <BuildModes Count="1" Active="Default">
       <Item1 Name="Default" Default="True"/>
       <SharedMatrixOptions Count="1">
         <Item1 ID="609264729892" Targets="" Modes="Default" Type="IDEMacro" MacroName="LCLWidgetType" Value="win32"/>
@@ -53,6 +50,10 @@
         <Filename Value="main.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Main"/>
+        <CursorPos X="33" Y="18"/>
+        <UsageCount Value="23"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit0>
       <Unit1>
         <Filename Value="data.pas"/>
@@ -61,25 +62,45 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Data"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="67"/>
+        <CursorPos X="19" Y="91"/>
+        <UsageCount Value="23"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit1>
       <Unit2>
         <Filename Value="vector.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Vector"/>
+        <UsageCount Value="23"/>
       </Unit2>
       <Unit3>
         <Filename Value="launchparameters.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="LaunchParameters"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="65"/>
+        <CursorPos X="79" Y="70"/>
+        <UsageCount Value="23"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit3>
       <Unit4>
         <Filename Value="data.lfm"/>
         <IsPartOfProject Value="True"/>
+        <UsageCount Value="23"/>
       </Unit4>
       <Unit5>
         <Filename Value="report.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Report"/>
+        <EditorIndex Value="3"/>
+        <UsageCount Value="23"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit5>
     </Units>
   </ProjectOptions>
@@ -101,18 +122,11 @@
       </SyntaxOptions>
     </Parsing>
     <CodeGeneration>
-      <SmartLinkUnit Value="True"/>
-      <RelocatableUnit Value="True"/>
       <Optimizations>
-        <OptimizationLevel Value="4"/>
+        <OptimizationLevel Value="0"/>
       </Optimizations>
-      <SmallerCode Value="True"/>
     </CodeGeneration>
     <Linking>
-      <Debugging>
-        <GenerateDebugInfo Value="False"/>
-      </Debugging>
-      <LinkSmart Value="True"/>
       <Options>
         <Win32>
           <GraphicApplication Value="True"/>
