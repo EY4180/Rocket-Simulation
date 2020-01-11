@@ -1,7 +1,7 @@
 object MainMenu: TMainMenu
-  Left = 69
+  Left = 62
   Height = 864
-  Top = 105
+  Top = 61
   Width = 1566
   AutoSize = True
   BorderStyle = bsSingle

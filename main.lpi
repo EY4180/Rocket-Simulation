@@ -62,13 +62,10 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Data"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="67"/>
-        <CursorPos X="19" Y="91"/>
+        <CursorPos X="26" Y="14"/>
         <UsageCount Value="23"/>
         <Loaded Value="True"/>
-        <LoadedDesigner Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit1>
       <Unit2>
@@ -76,14 +73,16 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="Vector"/>
         <UsageCount Value="23"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit2>
       <Unit3>
         <Filename Value="launchparameters.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="LaunchParameters"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="2"/>
-        <TopLine Value="65"/>
-        <CursorPos X="79" Y="70"/>
+        <TopLine Value="386"/>
+        <CursorPos X="55" Y="405"/>
         <UsageCount Value="23"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -92,6 +91,7 @@
         <Filename Value="data.lfm"/>
         <IsPartOfProject Value="True"/>
         <UsageCount Value="23"/>
+        <DefaultSyntaxHighlighter Value="LFM"/>
       </Unit4>
       <Unit5>
         <Filename Value="report.pas"/>
@@ -127,6 +127,9 @@
       </Optimizations>
     </CodeGeneration>
     <Linking>
+      <Debugging>
+        <GenerateDebugInfo Value="False"/>
+      </Debugging>
       <Options>
         <Win32>
           <GraphicApplication Value="True"/>
