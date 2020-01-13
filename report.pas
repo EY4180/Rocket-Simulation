@@ -3,11 +3,12 @@ unit Report;
 interface
 
 uses
-  Classes, fpPDF;
+  Classes, SysUtils, fpPDF;
 
 const
   PDFWidth = 595;
   PDFHeight = 842;
+  CourierPrime = 'Courier Prime.ttf';
 
 type
   TReport = class(TObject)
@@ -21,6 +22,8 @@ type
       FTextSize: integer;
       FPos: integer; // current position in the file
       FBorder: integer;
+
+      FFontFile: string;
     public
       constructor Create(Title: string);
       procedure AddText(Header: string; Body: TStringList);
@@ -42,12 +45,13 @@ end;
 constructor TReport.Create(Title: string);
 begin
   FDoc := TPDFDocument.Create(nil);
+  FFontFile := ExtractFileDir(ParamStr(0)) + PathDelim + 'Fonts' + PathDelim + CourierPrime;
   with FDoc do
   begin
     Options := [poPageOriginAtTop];
     StartDocument;
-    //FFont := AddFont('Times-Roman');
-    FFont := AddFont('Courier Prime.ttf', 'Courier Prime');
+
+    FFont := AddFont(FFontFile, 'Courier Prime');
     FSec := Sections.AddSection;
     FSec.Title := Title;
 

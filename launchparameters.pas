@@ -1,9 +1,3 @@
-{*******************************************************************************
-                                  Launch Data
-
-
-
-*******************************************************************************}
 unit LaunchParameters;
 
 interface
@@ -12,6 +6,12 @@ uses
   SysUtils, Classes, Vector, Math;
 
 type
+  TResultType = (Velocity, Displacement);
+  TPhaseID = (One, Two, Three);
+
+  TPhaseResult = array [TResultType] of double;
+  TSimulationResult = array [TPhaseID] of TPhaseResult;
+
   { TLaunchData }
   TLaunchData = class(TObject)
   private
@@ -32,21 +32,18 @@ type
     FEuler: double; // time interval of simulation (seconds)
     FInitPres: double; // launch pressure (pa)
     FLocGrav: double; // local gravity (m/s²)
-    FMaxX: double; // total distance travelled by rocket (m)
-    FMaxY: double; // total height reached (m)
     FNozRad: double; // radius of bottle nozzle (m)
-    FP2Vel: double; // velocity after phase 2 (m/s)
     FTime: double; // total flight time (seconds)
     FTubeLen: double; // length of mounting tube (m)
     FTubeVel: double; // tube velocity at the end of phase 1 (m/s)
     FVel: TVector; // rocket velocity vector
     FWaterDense: double; // water density in (kg/m³)
     FWaterVol: double; // water volume used for launch (m³)
-    FP2Disp: double; // displacement after phase 2
 
-    procedure PhaseOne(BackCalc: boolean);
-    procedure PhaseThree(BackCalc: boolean);
-    procedure PhaseTwo(BackCalc: boolean);
+    function PhaseOne(BackCalc: boolean): TPhaseResult;
+    function PhaseThree(BackCalc: boolean): TPhaseResult;
+    function PhaseTwo(BackCalc: boolean): TPhaseResult;
+
     procedure SetAdiIndex(const Value: double);
     procedure SetAirDense(const Value: double);
     procedure SetAngle(const Value: double);
@@ -64,9 +61,7 @@ type
     procedure SetWaterDense(const Value: double);
     procedure SetWaterVol(const Value: double);
   public
-    function GetDisplacement(PhaseNo: byte): double;
-    procedure RunSimulation;
-    procedure RunSolveSimulation(ActualDistance, Error: double);
+    function RunSimulation(const ActualDistance: double = 0): TSimulationResult;
     procedure AppendToList(var List: TStringList; const Row: array of double);
 
     property AdiabaticIndex: double read FAdiIndex write SetAdiIndex;
@@ -85,13 +80,9 @@ type
     property LaunchPressure: double read FInitPres write SetInitPres;
     property LaunchVolume: double read FWaterVol write SetWaterVol;
     property LocalGravity: double read FLocGrav write SetLocGrav;
-    property MaximumHeight: double read FMaxY;
     property NozzleRadius: double read FNozRad write SetNozRad;
-    property PhaseTwoDisplacement: double read FP2Disp;
-    property PhaseTwoVelocity: double read FP2Vel;
     property PressureList: TStringList read FPresList;
     property Time: double read FTime;
-    property TotalDistance: double read FMaxX;
     property TubeLength: double read FTubeLen write SetTubeLen;
     property TubeVelocity: double read FTubeVel;
     property WaterDensity: double read FWaterDense write SetWaterDense;
@@ -99,9 +90,9 @@ type
 
 implementation
 
-{ TLaunchData.SetLocGrav(const Value: double)
-
-  Assign a value to the local local gravity property. }
+{*******************************************************************************
+                                 Setter Methods
+*******************************************************************************}
 procedure TLaunchData.SetLocGrav(const Value: double);
 begin
   FLocGrav := Value;
@@ -177,39 +168,38 @@ begin
   FBotMass := Value;
 end;
 
-{ TLaunchData.SetAtmPres(const Value: double)
-
-  Assign a value to the atmospheric pressure property }
-
 procedure TLaunchData.SetAtmPres(const Value: double);
 begin
   FAtmPres := Value;
 end;
 
+{*******************************************************************************
+                                Helper Methods
+*******************************************************************************}
 
-function TLaunchData.GetDisplacement(PhaseNo: byte): double;
+procedure TLaunchData.AppendToList(var List: TStringList; const Row: array of double);
+const
+  CellDelimer = ' ';
 var
-  X, Y: double;
-  Phase, Index: integer;
-  PhaseEnd: boolean = False;
-  ListEnd: boolean = False;
+  FormattedRow: string;
+  Pos: byte;
 begin
-  Index := 0;
-  while not PhaseEnd and not ListEnd do
-  begin
-    ReadStr(FDispList[Index], Phase, X, Y);
-    ListEnd := Index = Pred(FDispList.Count);
-    PhaseEnd := Phase > PhaseNo;
-
-    if not (PhaseEnd or ListEnd) then
-      Inc(Index);
-  end;
-
-  ReadStr(FDispList[Index], Phase, X, Y);
-  Result := Sqrt(Sqr(X) + Sqr(Y));
+  FormattedRow := EmptyStr;
+  for Pos := 0 to High(Row) do
+    FormattedRow += FloatToStr(Row[Pos]) + CellDelimer;
+  List.Append(FormattedRow);
 end;
 
-procedure TLaunchData.PhaseOne(BackCalc: boolean);
+{*******************************************************************************
+                                  Calculations
+*******************************************************************************}
+
+{ TLaunchData.PhaseOne(BackCalc: boolean)
+
+  Simulates the first phase of the launch and returns an array with the first
+  element being the final velocity and the second element being the final
+  displacement. }
+function TLaunchData.PhaseOne(BackCalc: boolean): TPhaseResult;
 begin
   // reset global time variable
   FTime := 0;
@@ -225,9 +215,12 @@ begin
 
   if not BackCalc then
     AppendToList(FDispList, [0, FDisp.GetX, FDisp.GetY]);
+
+  Result[Velocity] := FVel.GetMagnitude;
+  Result[Displacement] := FDisp.GetMagnitude;
 end;
 
-procedure TLaunchData.PhaseTwo(BackCalc: boolean);
+function TLaunchData.PhaseTwo(BackCalc: boolean): TPhaseResult;
 
   function CalcPressure(const WaterMass: double; out Pressure: double): double;
   begin
@@ -299,14 +292,17 @@ begin
     WaterVel.Free;
   end;
 
-  FP2Disp := FDisp.GetMagnitude;
-  FP2Vel := FVel.GetMagnitude;
+  Result[Velocity] := FVel.GetMagnitude;
+  Result[Displacement] := FDisp.GetMagnitude;
 end;
 
-procedure TLaunchData.PhaseThree(BackCalc: boolean);
+function TLaunchData.PhaseThree(BackCalc: boolean): TPhaseResult;
 var
   VelCopy, Acc: TVector;
 begin
+  if not BackCalc then
+    AppendToList(FPresList, [2, FDisp.GetX, FAtmPres]);
+
   while FDisp.GetY > 0 do
   begin
     // initialization
@@ -329,78 +325,32 @@ begin
     // finalization
     FTime += FEuler;
     if not BackCalc then
-    begin
       AppendToList(FDispList, [2, FDisp.GetX, FDisp.GetY]);
-      AppendToList(FPresList, [2, FDisp.GetX, FAtmPres]);
-    end;
 
     Acc.Free;
     VelCopy.Free;
   end;
 
-  FMaxX := FDisp.GetX;
-end;
+  if not BackCalc then
+    AppendToList(FPresList, [2, FDisp.GetX, FAtmPres]);
 
-{ TLaunchData.RunSolveSimulation(ActualDistance: double);
-
-  Run a simulation and try and solve for the correction factor using a brute
-  force algorithm. }
-
-procedure TLaunchData.RunSolveSimulation(ActualDistance, Error: double);
-var
-  StepMultiplier: double = 0.1; // use initially high step value
-  StepValue: double = 10;
-  IsBelow: boolean = False;
-  IsAbove: boolean = False;
-begin
-  RunSimulation; // run the initial simulation
-
-  while not InRange(FDisp.GetX, ActualDistance - Error, ActualDistance + Error) and
-    not IsZero(StepValue) do
-  begin
-    // passed a threshold so now lower the step value
-    if IsAbove and IsBelow then
-    begin
-      StepMultiplier /= 10;
-      StepValue /= 10;
-      IsAbove := False;
-      IsBelow := False;
-    end;
-
-    if FDisp.GetX < ActualDistance then
-    begin
-      if FDCoeff > StepValue then
-      begin
-        FDCoeff -= StepValue;
-      end
-      else
-      begin
-        FDCoeff *= StepMultiplier;
-      end;
-
-      IsBelow := True;
-    end
-    else
-    begin
-      FDCoeff += StepValue;
-      IsAbove := True;
-    end;
-
-    // run an optimised simulation
-    PhaseOne(True);
-    PhaseTwo(True);
-    PhaseThree(True);
-  end;
-
-  RunSimulation;
+  Result[Velocity] := FVel.GetMagnitude;
+  Result[Displacement] := FDisp.GetMagnitude;
 end;
 
 { TLaunchData.RunSimulation
 
   Run a simulation of the flight path without performing any solve routines. }
 
-procedure TLaunchData.RunSimulation;
+function TLaunchData.RunSimulation(const ActualDistance: double = 0): TSimulationResult;
+var
+  StepMultiplier: double = 0.1; // use initially high step value
+  StepValue: double = 10;
+  Error: double = 0.0000000001;
+  IsBelow: boolean = False;
+  IsAbove: boolean = False;
 begin
+  // clear previous results
   if Assigned(FDispList) then
     FDispList.Free;
   FDispList := TStringList.Create;
@@ -413,27 +363,54 @@ begin
   // calculate initial volume of air
   FAirVol := FBotCap - FWaterVol;
 
-  PhaseOne(False);
-  PhaseTwo(False);
-  PhaseThree(False);
+  // run solve if actual distance is defined by user
+  if ActualDistance <> 0 then
+  begin
+    while not InRange(FDisp.GetX, ActualDistance - Error, ActualDistance + Error) and
+      not IsZero(StepValue) do
+    begin
+      // run an optimised simulation
+      PhaseOne(True);
+      PhaseTwo(True);
+      PhaseThree(True);
+
+      // passed a threshold so now lower the step value
+      if IsAbove and IsBelow then
+      begin
+        StepMultiplier /= 10;
+        StepValue /= 10;
+        IsAbove := False;
+        IsBelow := False;
+      end;
+
+      if FDisp.GetX < ActualDistance then
+      begin
+        if FDCoeff > StepValue then
+        begin
+          FDCoeff -= StepValue;
+        end
+        else
+        begin
+          FDCoeff *= StepMultiplier;
+        end;
+
+        IsBelow := True;
+      end
+      else
+      begin
+        FDCoeff += StepValue;
+        IsAbove := True;
+      end;
+    end;
+  end;
+
+  // store velocity/displacement values for full simulation
+  Result[One] := PhaseOne(False);
+  Result[Two] := PhaseTwo(False);
+  Result[Three] := PhaseThree(False);
 
   FDisp.Free;
   FVel.Free;
-end;
-
-procedure TLaunchData.AppendToList(var List: TStringList; const Row: array of double);
-const
-  CellDelimer = ' ';
-var
-  FormattedRow: string;
-  Pos: byte;
-begin
-  FormattedRow := EmptyStr;
-  for Pos := 0 to High(Row) do
-  begin
-    FormattedRow += FloatToStr(Row[Pos]) + CellDelimer;
-  end;
-  List.Append(FormattedRow);
 end;
 
 end.

@@ -1,16 +1,16 @@
 unit Data;
 
-{$Macro on}
 {$R *.lfm}
-{$Define ReportFolder := 'Report'}
-{$Define FontFolder := 'Fonts'}
-{$Define ProfileFolder := 'Profiles'}
 
 interface
 
 uses
   Classes, SysUtils, Forms, StdCtrls, TAGraph, TASeries, LaunchParameters,
   LCLType, ExtCtrls, Report, Graphics, ComCtrls;
+
+const
+  ReportFolder = 'Report';
+  ProfileFolder = 'Profiles';
 
 type
   { TMainMenu }
@@ -77,7 +77,8 @@ type
     FSimulation: TLaunchData; // a copy of the simulation
 
     procedure GetPanelData(const Sender: TGroupBox; var Data: TStringList);
-    procedure GetSeries(const Values: TStringList; var Series: TLineSeries; const LineColor: array of TColor);
+    procedure GetSeries(const Values: TStringList; var Series: TLineSeries;
+      const LineColor: array of TColor);
     procedure GetSimulationResults(BackCalc: boolean);
     procedure ReadFromDisk(var Sender: TLabeledEdit);
     procedure SaveGraph(const Sender: TChart);
@@ -121,7 +122,8 @@ end;
   correspond to [phase #] [x distance] [y distance]. Phase # is necessary to
   paint the graph a different color for each phase. }
 
-procedure TMainMenu.GetSeries(const Values: TStringList; var Series: TLineSeries; const LineColor: array of TColor);
+procedure TMainMenu.GetSeries(const Values: TStringList; var Series: TLineSeries;
+  const LineColor: array of TColor);
 var
   Buffer: string;
   X, Y: double;
@@ -391,6 +393,9 @@ begin
 end;
 
 procedure TMainMenu.GetSimulationResults(BackCalc: boolean);
+var
+  SimulationResult: TSimulationResult;
+  SimulationSeries: TLineSeries;
 begin
   with FSimulation do
   begin
@@ -413,34 +418,36 @@ begin
     DragCoefficient := StrToFloat(TxtDCoeff.Text);
     AirDensity := StrToFloat(TxtAirDen.Text);
 
-    RunSimulation;
+    SimulationResult := RunSimulation;
     GetSeries(DisplacementList, FPredPath, [clGreen, clRed, clBlue]);
-    ChtPath.AddSeries(FPredPath);
+    ChtPath.AddSeries(FPredPath); // add predicted path to chart
 
     if BackCalc then
     begin
-      RunSolveSimulation(StrToFloat(LEditActDist.Text), 0.0000001);
+      SimulationResult := RunSimulation(StrToFloat(LEditActDist.Text));
       GetSeries(DisplacementList, FActPath, [clGreen, clRed, clBlue]);
-      ChtPath.AddSeries(FActPath);
-      LEditTotalD.Text := FloatToStr(FActPath.MaxXValue);
-      LEditTotalH.Text := FloatToStr(FActPath.MaxYValue);
+      ChtPath.AddSeries(FActPath); // add actual path to chart
+      SimulationSeries := FActPath;
     end
     else
     begin
       FActPath.Clear;
-      LEditTotalD.Text := FloatToStr(FPredPath.MaxXValue);
-      LEditTotalH.Text := FloatToStr(FPredPath.MaxYValue);
+      SimulationSeries := FPredPath;
     end;
-    GetSeries(PressureList, FPresPath, [clGreen, clRed, clBlue]);
-    ChtPresPath.AddSeries(FPresPath);
 
+    GetSeries(PressureList, FPresPath, [clGreen, clRed, clBlue]);
+    ChtPresPath.AddSeries(FPresPath); // add pressure graph to chart
+
+    LEditTotalD.Text := FloatToStr(SimulationSeries.MaxXValue);
+    LEditTotalH.Text := FloatToStr(SimulationSeries.MaxYValue);
+    LEditDP1.Text := FloatToStr(SimulationResult[One][Displacement]);
+    LEditVP1.Text := FloatToStr(SimulationResult[One][Velocity]);
+    LEditDP2.Text := FloatToStr(SimulationResult[Two][Displacement]);
+    LEditVP2.Text := FloatToStr(SimulationResult[Two][Velocity]);
     LEditTime.Text := FloatToStr(Time);
-    LEditDP1.Text := FloatToStr(TubeLength);
-    LEditVP1.Text := FloatToStr(TubeVelocity);
-    LEditDP2.Text := FloatToStr(PhaseTwoDisplacement);
-    LEditVP2.Text := FloatToStr(PhaseTwoVelocity);
     LEditCorFac.Text := FloatToStr(DragCoefficient / StrToFloat(TxtDCoeff.Text));
   end;
+
   BtnGenRep.Enabled := True;
 end;
 

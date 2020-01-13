@@ -1,0 +1,860 @@
+ {
+  var
+  Component: TComponent;
+  ComponentID: byte;
+begin
+  for ComponentID := 0 to Pred(ComponentCount) do
+  begin
+    Component := Components[ComponentID];
+    if Component is TEdit then
+    begin
+      TEdit(Component).Text := ReadFromDisk(FProName, TEdit(Component).Name);
+    end;
+  end;
+
+
+
+
+  AssignFile(FilePointer, FileName);
+
+  // try and open an existing config file
+  if FileExists(FileName) then
+  begin
+    // open file for reading
+    Reset(FilePointer);
+
+    // find a definition for a text box object
+    while not EOF(FilePointer) and not FoundMatch do
+    begin
+      ReadLn(FilePointer, Buffer);
+      WriteLn(Buffer);
+      ReadStr(Buffer, TextBoxName, TextBoxValue);
+      WriteLn(TextBoxName, TextBoxValue);
+      if CompareStr(TextBoxName, ComponentName) = 0 then
+        FoundMatch := True;
+    end;
+
+    CloseFile(FilePointer);
+  end;
+
+  // set value from file or load default value
+  if FoundMatch then
+  begin
+    Result := FloatToStr(TextBoxValue);
+  end
+  else
+  begin
+    Result := EmptyStr;
+  end;
+
+  }        
+  
+  
+  
+{ TMainMenu.SetTextBox
+
+  Cycles through every text box in the form and loads the correct value from a
+  configuration file. }
+
+procedure TMainMenu.SetTextBox;
+var
+  Component: TComponent;
+  ComponentID: byte;
+begin
+  for ComponentID := 0 to Pred(ComponentCount) do
+  begin
+    Component := Components[ComponentID];
+    if Component is TEdit then
+    begin
+      TEdit(Component).Text := ReadFromDisk(FProName, TEdit(Component).Name);
+    end;
+  end;
+end;           
+
+
+
+var
+  FilePointer: Text;
+  FileContents: TStringList;
+  CompNo: byte;
+  TxtName, TxtValue, Buffer: string;
+  ComponentInFile: boolean;
+begin
+  // load profile into string list
+  FileContents := TStringList.Create;
+  try
+    AssignFile(FilePointer, FileName);
+    Reset(FilePointer);
+
+    while not EOF(FilePointer) do
+    begin
+      ReadLn(FilePointer, Buffer);
+      FileContents.Add(Buffer);
+    end;
+    CloseFile(FilePointer);
+  except
+    on E: EInOutError do
+      Abort;
+  end;
+
+  // load values for textboxes
+  for CompNo := 0 to Pred(ComponentCount) do
+  begin
+
+
+    if Components[CompNo] is TEdit then
+    begin
+      ComponentInFile := False;
+
+      for Buffer in FileContents do
+      begin
+        SScanf(Buffer, '%s %s', [@TxtName, @TxtValue]);
+        if Components[CompNo].Name = TxtName then
+        begin
+          TEdit(Components[CompNo]).Text := TxtValue;
+          ComponentInFile := True;
+          Break;
+        end;
+      end;
+
+      if not ComponentInFile then
+        TEdit(Components[CompNo]).Text := EmptyStr;
+    end;
+  end;
+
+  FileContents.Free;
+end;  
+
+
+  {
+  // determine how to adjust the drag constant
+  if FMaxX < ActualDistance then
+  begin
+    StepValue := -StepValue;
+
+    while FDisp.GetX < ActualDistance do
+    begin
+      FDCoeff -= 0.0001;
+
+      PhaseOne;
+      PhaseTwo(True);
+      PhaseThree(True);
+    end;
+  end
+  else
+  begin
+    while FDisp.GetX > ActualDistance do
+    begin
+      FDCoeff += 0.0001;
+
+      PhaseOne;
+      PhaseTwo(True);
+      PhaseThree(True);
+    end;
+  end;
+  }  
+
+
+{procedure TMainMenu.SaveToDisk(FileName: string; TextBox: TEdit);
+var
+  FilePointer: TextFile;
+  DataBlock, Buffer: string;
+  AppendStatus: boolean = True;
+begin
+  AssignFile(FilePointer, FileName);
+
+  Reset(FilePointer);
+  // load contents of file into tempoary location
+  while not EOF(FilePointer) do
+  begin
+    ReadLn(FilePointer, Buffer);
+    if CompareStr(Copy2Space(Buffer), TextBox.Name) = 0 then
+    begin
+      DataBlock += TextBox.Name + ' ' + TextBox.Text + LineEnding;
+      AppendStatus := False;
+    end
+    else
+    begin
+      DataBlock += Buffer + LineEnding;
+    end;
+  end;
+  // textbox not defined so append new entry to file
+  if AppendStatus then
+  begin
+    DataBlock += TextBox.Name + ' ' + TextBox.Text;
+  end;
+
+  CloseFile(FilePointer);
+
+  // write data to the file and close it
+  Rewrite(FilePointer);
+  Write(FilePointer, DataBlock);
+  CloseFile(FilePointer);
+end;  }   
+
+
+  {
+procedure TMainMenu.SaveToDisk(Target: TEdit);
+var
+  FilePointer: Text;
+  DataBlock, Buffer, TextBoxName, TextBoxValue: string;
+  AppendToFile: boolean = True;
+begin
+  try
+    AssignFile(FilePointer, FProName);
+    Reset(FilePointer);
+
+    while not EOF(FilePointer) do
+    begin
+      ReadLn(FilePointer, Buffer);
+      SScanf(Buffer, '%s %s', [@TextBoxName, @TextBoxValue]);
+      WriteLn(Target.Name = TextBoxName);
+      if Target.Name = TextBoxName then
+      begin
+        DataBlock += Target.Name + ' ' + Target.Text + LineEnding;
+        AppendToFile := False;
+      end
+      else
+      begin
+        DataBlock += Buffer + LineEnding;
+      end;
+    end;
+
+    CloseFile(FilePointer);
+  except
+    on E: EInOutError do
+      Abort;
+  end;
+
+  if AppendToFile then
+    DataBlock += Target.Name + ' ' + Target.Text;
+
+  Rewrite(FilePointer);
+  Write(FilePointer, DataBlock);
+  CloseFile(FilePointer);
+end;
+
+
+      }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+unit Unit1;
+
+{$mode objfpc}{$H+}
+
+interface
+
+uses
+  Classes, SysUtils, LR_Class, LR_Desgn, LRDialogControls, Forms,
+  Controls, Graphics, Dialogs, StdCtrls;
+
+type
+
+  { TForm1 }
+
+  TForm1 = class(TForm)
+    Button1: TButton;
+    Button2: TButton;
+    frDesigner1: TfrDesigner;
+    frReport1: TfrReport;
+    LRDialogControls1: TLRDialogControls;
+    procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+  private
+    function ReportFileName:string;
+  public
+    { public declarations }
+  end;
+
+var
+  Form1: TForm1;
+
+implementation
+
+{$R *.lfm}
+
+uses
+  lazfileutils, lazutf8;
+
+{ TForm1 }
+
+procedure TForm1.Button1Click(Sender: TObject);
+begin
+  if FileExistsUTF8(ReportFileName) then
+    frReport1.LoadFromFile(ReportFileName)
+  else
+    frReport1.FileName:=ReportFileName;
+  frReport1.DesignReport;
+end;
+
+procedure TForm1.Button2Click(Sender: TObject);
+begin
+  if FileExistsUTF8(ReportFileName) then
+  begin
+    frReport1.LoadFromFile(ReportFileName);
+    frReport1.ShowReport;
+  end;
+end;
+
+function TForm1.ReportFileName: string;
+begin
+  Result:=AppendPathDelim(ExtractFileDir(ParamStrUTF8(0)))+'demo_form_storage.lrf';
+end;
+
+end.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+unit Report;
+
+interface
+
+uses
+  SysUtils, StrUtils, Classes, Math;
+
+type
+  TReport = class(TObject)
+    public
+      constructor Create(Title, Author, Pub, Abs: string);
+
+     // procedure WriteToDisk(FileName: string);
+
+      procedure CreateReport;
+      //procedure SetBody(Value: TStringList; Style: byte);
+
+      procedure SetLineLength(const Value: byte);
+      procedure SetTblSym(const Value: string);
+      procedure SetContents(const Value: TStringList);
+
+    private
+      FLnLen: byte; // max allowable characters in a line
+      FTblSym: string; // character used as table border
+      FTitle: string;
+      FAuthor: string;
+      FPublication: string;
+      FAbstract: string;
+      FContents: TStringList; // text to be contained in the body
+
+      //procedure CreateSummary(ColCount: integer);
+
+      procedure CreateBody;
+      procedure CreateTitle;
+      function FormatBigString(Target: string): string;
+    published
+      property LineLength: byte read FLnLen write SetLineLength;
+      property TableSymbol: string read FTblSym write SetTblSym;
+      property Contents: TStringList write SetContents;
+  end;
+
+implementation
+constructor TReport.Create(Title, Author, Pub, Abs: string);
+begin
+  FLnLen := 80; // default line length is 80 characters
+  FTblSym := '═'; // default divider symbol
+
+  FTitle := Title;
+  FAuthor := Author;
+  FPublication := Pub;
+  FAbstract := Abs;
+
+  CreateTitle;
+end;
+procedure TReport.CreateReport;
+begin
+  CreateTitle;
+  CreateBody;
+end;
+
+procedure TReport.SetLineLength(const Value: byte);
+begin
+  FLnLen := Value;
+end;
+
+procedure TReport.SetTblSym(const Value: string);
+begin
+  FTblSym := Value;
+end;
+
+procedure TReport.SetContents(const Value: TStringList);
+begin
+  FContents := Value;
+end;
+
+{ TReport.FormatBigString(Target: string): string
+
+  Takes a single stream of text and returns a separated version of the target
+  string. This is scuh that all the text is wrapped to a predefined line length }
+
+function TReport.FormatBigString(Target: string): string;
+var
+  SingleWord, FormattedString: string;
+  SeparatedString: TStringList;
+  TotalCharacters: integer = 0;
+  WordCount: integer = 0;
+begin
+  SeparatedString := TStringList.Create;
+  SeparatedString.Delimiter := ' ';
+  SeparatedString.DelimitedText := Target;
+
+  while WordCount < Pred(SeparatedString.Count) do
+  begin
+    SingleWord := SeparatedString[WordCount] + ' ';
+
+    TotalCharacters += Length(SingleWord);
+    if TotalCharacters >= FLnLen then
+    begin
+      TotalCharacters := 0;
+      FormattedString += LineEnding;
+    end
+    else
+    begin
+      FormattedString += SingleWord;
+      WordCount += 1;
+    end;
+  end;
+
+  SeparatedString.Free;
+  Result := FormattedString;
+end;
+
+procedure TReport.CreateTitle;
+begin
+  WriteLn(DupeString(FTblSym, FLnLen)); // opening bounds
+  WriteLn(PadCenter(FTitle, FLnLen));
+  WriteLn(PadCenter(FAuthor, FLnLen));
+  WriteLn(LineEnding + FormatBigString(FAbstract));
+  WriteLn(DupeString(FTblSym, FLnLen)); // closing bounds
+end;
+
+procedure TReport.CreateBody;
+var
+  SingleString, SingleWord: string;
+  SeparatedString: TStringList;
+  max: integer = 0;
+begin
+  SeparatedString := TStringList.Create;
+  SeparatedString.Delimiter := ' ';
+  // find the max length for each column
+  for SingleString in FContents do
+  begin
+    SeparatedString.DelimitedText:= SingleString;
+    for SingleWord in SeparatedString do
+    begin
+      if Length(SingleWord) > Max then
+        Max := Length(SingleWord);
+    end;
+  end;
+
+  for SingleString in FContents do
+  begin
+    SeparatedString.DelimitedText:= SingleString;
+    Write('╫');
+    for SingleWord in SeparatedString do
+    begin
+      Write(PadRight(SingleWord, (FLnLen-2) div 2) + '╫');
+    end;
+    WriteLn;
+  end;
+
+
+  WriteLn(max);
+end;
+
+end.
+
+  
+
+
+
+
+const
+  PDFWidth = 595;
+  PDFHeight = 842;
+  PDFBorder = 30;
+var
+  TextFont: integer;
+
+
+  Report: TPDFDocument;
+  Page: TPDFPage;
+  Section: TPDFSection; // the only section in the report
+  DefaultFont: integer; // default font style use in all text
+  PathImg: integer; // picture of the flight path
+
+  function GetNewHeight(const Width, Height, NewWidth: integer): integer;
+  begin
+    Result := Trunc((NewWidth / Width) * Height);
+  end;
+
+begin
+  // initialize report
+  Report := TPDFDocument.Create(nil);
+  Report.Options := [poPageOriginAtTop]; // set (0, 0) at top left
+  Report.StartDocument;
+  Section := Report.Sections.AddSection;
+  Section.Title := 'Flight Simulation Report';
+
+  Page := Report.Pages.AddPage;
+  Page.Orientation := ppoPortrait;
+  Page.PaperType := ptA4;
+  Page.UnitOfMeasure := uomPixels;
+  Section.AddPage(Page);
+
+  TextFont := Report.AddFont('Courier'); // main font
+  // draw graph of flight path
+  PathImg := Report.Images.AddFromFile(FRepDir + PathDelim + ChtPath.Name +
+    '.png', False);
+
+  Page.DrawRect(PDFBorder, PDFBorder, (PDFWidth - PDFBorder), -(PDFHeight - PDFBorder), 2, False, True, 0);
+
+  Page.DrawImage(PDFBorder, PDFHeight div 2, PDFWidth - 2 * PDFBorder,
+    GetNewHeight(Report.Images[PathImg].Width, Report.Images[PathImg].Height,
+    PDFWidth - 2 * PDFBorder), PathImg, 0);
+
+  Page.SetFont(TextFont, 10);
+  Page.WriteText(10, 10, 'Hello My Name Is Edward' + LineEnding + 'hello again',
+    0, False, False);
+
+  Report.SaveToFile(FRepName);
+  Report.Free;
+end;          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function PointToPixels(Point: integer): integer;
+begin
+  Result := (Point * 72) div 96;
+end;
+
+function GetTextWidth(AText: String; AFont: TFont): Integer;
+var
+  bmp: TBitmap;
+begin
+  Result := 0;
+  bmp := TBitmap.Create;
+  try
+    bmp.Canvas.Font.Assign(AFont);
+    Result := bmp.Canvas.TextWidth(AText);
+  finally
+    bmp.Free;
+  end;
+end;
+
+{
+function TReport.FormatBigString(Target: string): string;
+var
+  SingleWord, FormattedString: string;
+  SeparatedString: TStringList;
+  TotalCharacters: integer = 0;
+  WordCount: integer = 0;
+begin
+  SeparatedString := TStringList.Create;
+  SeparatedString.Delimiter := ' ';
+  SeparatedString.DelimitedText := Target;
+
+  while WordCount < Pred(SeparatedString.Count) do
+  begin
+    SingleWord := SeparatedString[WordCount] + ' ';
+
+    TotalCharacters += Length(SingleWord);
+    if TotalCharacters >= FLnLen then
+    begin
+      TotalCharacters := 0;
+      FormattedString += LineEnding;
+    end
+    else
+    begin
+      FormattedString += SingleWord;
+      WordCount += 1;
+    end;
+  end;
+
+  SeparatedString.Free;
+  Result := FormattedString;
+end;
+       }
+
+constructor TReport.Create(Title: string);
+begin
+  FDoc := TPDFDocument.Create(nil);
+  with FDoc do
+  begin
+    Options := [poPageOriginAtTop, poSubsetFont];
+    StartDocument;
+    FFont := AddFont('Times-Roman');
+    //FFont := AddFont('Courier Prime.ttf', 'Courier Prime');
+    FSec := Sections.AddSection;
+    FSec.Title := Title;
+
+    FPage := Pages.AddPage;
+    FPage.Orientation := ppoPortrait;
+    FPage.PaperType := ptA4;
+    FPage.UnitOfMeasure := uomPixels;
+    FSec.AddPage(FPage);
+  end;
+  FBorder := 20; // default size of the border
+  FTitle := Title;
+  FTitleSize := 28;
+  FTextSize := 12;
+  FPos := 0;
+end;
+
+procedure TReport.SetBorder(const Value: integer);
+begin
+  if Value > 0 then
+    FBorder := Value;
+end;
+
+procedure TReport.DrawTitle;
+begin
+  FPage.SetFont(FFont, FTitleSize);
+  FPage.WriteText(FBorder, FBorder + PointToPixels(FTitleSize), FTitle, 0, False, False);
+  FPos := FBorder + PointToPixels(FTitleSize);
+end;
+
+procedure TReport.DrawBoundingBox;
+var
+  BoxWidth, BoxHeight, X, Y: integer;
+begin
+  BoxWidth := PDFWidth - 2 * FBorder;
+  Y := 2 * FBorder + PointToPixels(FTitleSize);
+  BoxHeight := PDFHeight - Y - 2 * FBorder;
+  X := FBorder;
+
+  FPage.DrawRect(X, Y, BoxWidth, -BoxHeight, 1, False, True, 0);
+  FPos := Y;
+end;
+
+procedure TReport.AddText(X, Y: integer; Buffer: TStringList);
+var
+  WordCount: integer = 0;
+  DotLine: integer;
+  Header: UnicodeString;
+  Value: string;
+  Temp: string;
+begin
+  FPage.SetFont(FFont, FTextSize);
+  DotLine := FDoc.AddLineStyleDef(1, clBlack, ppsDot);
+
+  while WordCount < Buffer.Count do
+  begin
+    Temp := Buffer[WordCount];
+    Header := UnicodeString(Copy2SymbDel(Temp, ':'));
+    Value := Temp;
+
+   // SampleText := TPDFText.Create(FDoc, X, Y + PointToPixels(FTextSize) * WordCount, Tabulated, FEBFont, 0, False, False);
+    //FPage.AddObject(SampleText);
+    FPage.WriteText(X, FPos, Header, 0, False, False);
+
+    WriteLn(Length(Header));
+    FPage.DrawLineStyle(X + Length(Header) * PointToPixels(FTextSize), FPos, X + 300, FPos, DotLine);
+    FPage.WriteText(X + 300, FPos, Value, 0, False, False);
+
+    FPos += PointToPixels(FTextSize) + 5;
+
+    Inc(WordCount);
+  end;
+end;
+procedure TReport.DrawImage(const FName: string);
+var
+  Image: integer;
+  X, Y, Width, Height: integer;
+begin
+  Image := FDoc.Images.AddFromFile(FName, False);
+
+  Width := PDFWidth -  2 * (FBorder + 5);
+  Height := Trunc((Width / FDoc.Images[Image].Width) * FDoc.Images[Image].Height);
+  X := FBorder + 5;
+  Y := 2 * FBorder + 5 + Height + PointToPixels(FTitleSize);
+
+  FPage.DrawImage(X, Y, Width, Height, Image, 0);
+  FPos := Y + PointToPixels(FTextSize);
+end;
+
+procedure TReport.Save(FName: string);
+begin
+  if FileExists(FName) then
+    DeleteFile(FName);
+
+  FDoc.SaveToFile(FName);
+end;               
+
+
+
+
+
+
+
+
+
+
+
+{
+function TReport.FormatBigString(Target: string): string;
+var
+  SingleWord, FormattedString: string;
+  SeparatedString: TStringList;
+  TotalCharacters: integer = 0;
+  WordCount: integer = 0;
+begin
+  SeparatedString := TStringList.Create;
+  SeparatedString.Delimiter := ' ';
+  SeparatedString.DelimitedText := Target;
+
+  while WordCount < Pred(SeparatedString.Count) do
+  begin
+    SingleWord := SeparatedString[WordCount] + ' ';
+
+    TotalCharacters += Length(SingleWord);
+    if TotalCharacters >= FLnLen then
+    begin
+      TotalCharacters := 0;
+      FormattedString += LineEnding;
+    end
+    else
+    begin
+      FormattedString += SingleWord;
+      WordCount += 1;
+    end;
+  end;
+
+  SeparatedString.Free;
+  Result := FormattedString;
+end;
+       }    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{ TLaunchData.RunSolveSimulation(ActualDistance: double);
+
+  Run a simulation and try and solve for the correction factor using a brute
+  force algorithm. }
+
+procedure TLaunchData.RunSolveSimulation(ActualDistance, Error: double);
+var
+  StepMultiplier: double = 0.1; // use initially high step value
+  StepValue: double = 10;
+  IsBelow: boolean = False;
+  IsAbove: boolean = False;
+begin
+  RunSimulation; // run the initial simulation
+
+  while not InRange(FDisp.GetX, ActualDistance - Error, ActualDistance + Error) and
+    not IsZero(StepValue) do
+  begin
+    // passed a threshold so now lower the step value
+    if IsAbove and IsBelow then
+    begin
+      StepMultiplier /= 10;
+      StepValue /= 10;
+      IsAbove := False;
+      IsBelow := False;
+    end;
+
+    if FDisp.GetX < ActualDistance then
+    begin
+      if FDCoeff > StepValue then
+      begin
+        FDCoeff -= StepValue;
+      end
+      else
+      begin
+        FDCoeff *= StepMultiplier;
+      end;
+
+      IsBelow := True;
+    end
+    else
+    begin
+      FDCoeff += StepValue;
+      IsAbove := True;
+    end;
+
+    // run an optimised simulation
+    PhaseOne(True);
+    PhaseTwo(True);
+    PhaseThree(True);
+  end;
+
+  RunSimulation;
+end;        
