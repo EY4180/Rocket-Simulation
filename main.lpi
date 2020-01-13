@@ -7,6 +7,7 @@
       <Flags>
         <SaveOnlyProjectUnits Value="True"/>
       </Flags>
+      <SessionStorage Value="InIDEConfig"/>
       <MainUnit Value="0"/>
       <AutoCreateForms Value="False"/>
       <Title Value="Rocket Simulation Program"/>
@@ -22,7 +23,7 @@
       <MajorVersionNr Value="4"/>
       <CharSet Value="04B0"/>
     </VersionInfo>
-    <BuildModes Count="1" Active="Default">
+    <BuildModes Count="1">
       <Item1 Name="Default" Default="True"/>
       <SharedMatrixOptions Count="1">
         <Item1 ID="609264729892" Targets="" Modes="Default" Type="IDEMacro" MacroName="LCLWidgetType" Value="win32"/>
@@ -50,10 +51,6 @@
         <Filename Value="main.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Main"/>
-        <CursorPos X="33" Y="18"/>
-        <UsageCount Value="23"/>
-        <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit0>
       <Unit1>
         <Filename Value="data.pas"/>
@@ -62,45 +59,25 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Data"/>
-        <EditorIndex Value="1"/>
-        <CursorPos X="26" Y="14"/>
-        <UsageCount Value="23"/>
-        <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit1>
       <Unit2>
         <Filename Value="vector.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Vector"/>
-        <UsageCount Value="23"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit2>
       <Unit3>
         <Filename Value="launchparameters.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="LaunchParameters"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="2"/>
-        <TopLine Value="386"/>
-        <CursorPos X="55" Y="405"/>
-        <UsageCount Value="23"/>
-        <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit3>
       <Unit4>
         <Filename Value="data.lfm"/>
         <IsPartOfProject Value="True"/>
-        <UsageCount Value="23"/>
-        <DefaultSyntaxHighlighter Value="LFM"/>
       </Unit4>
       <Unit5>
         <Filename Value="report.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Report"/>
-        <EditorIndex Value="3"/>
-        <UsageCount Value="23"/>
-        <Loaded Value="True"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit5>
     </Units>
   </ProjectOptions>
