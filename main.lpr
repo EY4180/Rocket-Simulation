@@ -4,15 +4,17 @@ program Main;
 {$R *.res}
 
 uses
-  Forms, Interfaces, Data;
+  Forms,
+  Interfaces,
+  Data;
 
 var
   MainMenu: TMainMenu;
 
 begin
-  RequireDerivedFormResource:=True;
-  Application.Scaled:=True;
-  Application.Title:='Rocket Simulation Program';
+  RequireDerivedFormResource := True;
+  Application.Scaled := True;
+  Application.Title := 'Rocket Simulation Program';
   Application.Initialize;
   Application.CreateForm(TMainMenu, MainMenu);
   Application.Run;

@@ -12,27 +12,27 @@ const
 
 type
   TReport = class(TObject)
-    private
-      FDoc: TPDFDocument;
-      FSec: TPDFSection;
-      FPage: TPDFPage;
-      FFont: integer;
-      FTitle: string;
-      FTitleSize: integer;
-      FTextSize: integer;
-      FPos: integer; // current position in the file
-      FBorder: integer;
+  private
+    FDoc: TPDFDocument;
+    FSec: TPDFSection;
+    FPage: TPDFPage;
+    FFont: integer;
+    FTitle: string;
+    FTitleSize: integer;
+    FTextSize: integer;
+    FPos: integer; // current position in the file
+    FBorder: integer;
 
-      FFontFile: string;
-    public
-      constructor Create(Title: string);
-      procedure AddText(Header: string; Body: TStringList);
-      procedure DrawTitle;
-      procedure SetBorder(const Value: integer);
-      procedure Save(FName: string);
-      procedure DrawBoundingBox;
-      procedure DrawImage(const FName: string);
-      property BorderSize: integer read FBorder write SetBorder;
+    FFontFile: string;
+  public
+    constructor Create(Title: string);
+    procedure AddText(Header: string; Body: TStringList);
+    procedure DrawTitle;
+    procedure SetBorder(const Value: integer);
+    procedure Save(FName: string);
+    procedure DrawBoundingBox;
+    procedure DrawImage(const FName: string);
+    property BorderSize: integer read FBorder write SetBorder;
   end;
 
 implementation
@@ -45,7 +45,8 @@ end;
 constructor TReport.Create(Title: string);
 begin
   FDoc := TPDFDocument.Create(nil);
-  FFontFile := ExtractFileDir(ParamStr(0)) + PathDelim + 'Fonts' + PathDelim + CourierPrime;
+  FFontFile := ExtractFileDir(ParamStr(0)) + PathDelim + 'Fonts' +
+    PathDelim + CourierPrime;
   with FDoc do
   begin
     Options := [poPageOriginAtTop];
@@ -121,6 +122,7 @@ begin
   end;
   FPos += SpaceAfter;
 end;
+
 procedure TReport.DrawImage(const FName: string);
 var
   Image: integer;
@@ -128,7 +130,7 @@ var
 begin
   Image := FDoc.Images.AddFromFile(FName, False);
 
-  Width := PDFWidth -  2 * (FBorder + 5);
+  Width := PDFWidth - 2 * (FBorder + 5);
   Height := Trunc((Width / FDoc.Images[Image].Width) * FDoc.Images[Image].Height);
   X := FBorder + 5;
   Y := Height + PointToPixels(FTitleSize);
@@ -143,4 +145,3 @@ begin
 end;
 
 end.
-

@@ -224,8 +224,8 @@ function TLaunchData.PhaseTwo(BackCalc: boolean): TPhaseResult;
 
   function CalcPressure(const WaterMass: double; out Pressure: double): double;
   begin
-    Pressure := (FInitPres + FAtmPres) *
-      (FAirVol / (FAirVol + FWaterVol - WaterMass / FWaterDense)) ** FAdiIndex;
+    Pressure := (FInitPres + FAtmPres) * (FAirVol /
+      (FAirVol + FWaterVol - WaterMass / FWaterDense)) ** FAdiIndex;
     Result := Pressure;
   end;
 
