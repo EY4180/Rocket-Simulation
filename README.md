@@ -1,13 +1,15 @@
 # ENSC2001 Rocket Simulation
 ## Introduction
-This was just a small project I used to learn how to use/manipulate forms in pascal. The feature-set is quite small and it probably isnt as efficient as I'd hoped.
+This was just a small project I used to learn how to use forms in pascal. The program is able to run a simulation of a water bottle's flight in 2D. It will report back to you the total distance travelled, max height, and the respective velocitys/displacements at the end of each phase of flight. 
 
-I was mainly inspired to do the project because of a assignment I got which didnt sit right with me. I just couldnt get it off my mind for a long time, so here it is. Im done with this and if you care to use it, by all means do so.
+Additionally, the program produces a flight and pressure graph which are saved to the "Reports" directory. And if you choose to generate a report, the report will be saved as a .pdf to the "Reports" directory.
+
+Like in the original project, the ability to goal-seek is avaliable. 
+
+Overall, I aimed to create a portable version of the Flight Simulation Assignment that used propper programming constructs to simulate the flight of a rocket as opposed to simply using excel. This should be used as a drop-in replacement for the assignment and I hope either the program or code is of use to you. 
 
 ## How To Use
-Just download the .exe and the fonts folder. By putting them in the same directory you can execute the program just fine. Without the fonts folder you will have troubles generating any reports. If you want to use the .exe on a mac I've tested it with wine64 and it runs fine but the dpi-scaling might be a bit wonky. If lazarus ever becomes supported again on the macOS then I'll compile a mac-version. 
+The .exe is all that is needed to run this program. There are 3 folders that will be created in the directory of the .exe at runtime. These are: Profiles, Fonts and Reports. The contents of these folders are self explanatory and store your values for the simulation.
 
 ## To Do List
-This is still under construction. Things that need to be done are
-- Error checking on user input
-- Error checking on edge cases (e.g. Water volume less than bottle capacity)
+I stil need to tidy up the user input validation a little bit. For example it is still possible to enter an actual distance that is less than the lenght of the tube. Additionally there is an upper-bound to the rockets distance that if reached causes the program to behave unexpectedly. No checks have been implemented on the initial volume of water being less than the capacity of the bottle either.
