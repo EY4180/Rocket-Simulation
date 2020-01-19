@@ -3,11 +3,12 @@ unit Report;
 interface
 
 uses
-  Classes, SysUtils, fpPDF;
+  Classes, SysUtils, fpPDF, LResources, Windows;
 
 const
   PDFWidth = 595;
   PDFHeight = 842;
+  FontFolder = 'Fonts';
   CourierPrime = 'Courier Prime.ttf';
 
 type
@@ -43,10 +44,24 @@ begin
 end;
 
 constructor TReport.Create(Title: string);
+var
+  FontResource: TResourceStream;
 begin
-  FDoc := TPDFDocument.Create(nil);
-  FFontFile := ExtractFileDir(ParamStr(0)) + PathDelim + 'Fonts' +
+  // check if fonts directory exists
+  if not DirectoryExists(FontFolder) then
+    CreateDir(FontFolder);
+
+  FFontFile := ExtractFileDir(ParamStr(0)) + PathDelim + FontFolder +
     PathDelim + CourierPrime;
+  // check if font file exists
+  if not FileExists(FFontFile) then
+  begin
+    FontResource := TResourceStream.Create(HInstance, 'Courier Prime', RT_RCDATA);
+    FontResource.SaveToFile(FontFolder + PathDelim + CourierPrime);
+    FontResource.Free;
+  end;
+
+  FDoc := TPDFDocument.Create(nil);
   with FDoc do
   begin
     Options := [poPageOriginAtTop];
@@ -143,5 +158,8 @@ procedure TReport.Save(FName: string);
 begin
   FDoc.SaveToFile(FName);
 end;
+
+initialization
+  {$I report.lrs}
 
 end.
