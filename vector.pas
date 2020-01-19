@@ -29,6 +29,7 @@ implementation
 
   Constructor for a vector in rectangular coordinates. Both the x and y
   components must be defined for initialization. }
+
 constructor TVector.CreateRec(const X, Y: double);
 begin
   FComponents[0] := X;
@@ -39,6 +40,7 @@ end;
 
   Constructor for a vector in polar coordinates. Both the size and angle
   must be defined for initialization. }
+
 constructor TVector.CreatePol(const Size, Direction: double);
 begin
   FComponents[0] := Size * Cos(Direction);
@@ -48,6 +50,7 @@ end;
 { TVector.AddY(Amount: double)
 
   Adda scalar to the y-component of a vector. }
+
 procedure TVector.AddY(const Amount: double);
 begin
   FComponents[1] += Amount;
@@ -55,7 +58,8 @@ end;
 
 { TVector.AddX(Amount: double)
 
-  Adda scalar to the x-component of a vector. }
+  Add a scalar to the x-component of a vector. }
+
 procedure TVector.AddX(const Amount: double);
 begin
   FComponents[0] += Amount;
@@ -65,6 +69,7 @@ end;
 
   An accessor method that returns the direction that the vector points in polar
   form. }
+
 function TVector.GetAngle: double;
 begin
   Result := ArcTan(FComponents[1] / FComponents[0]);
@@ -73,6 +78,7 @@ end;
 { TVector.GetMagnitude
 
   An accessor method that returns the size of a vector in polar form. }
+
 function TVector.GetMagnitude: double;
 begin
   Result := Sqrt(Sqr(FComponents[0]) + Sqr(FComponents[1]));
@@ -82,6 +88,7 @@ end;
 
   Adds the components of another vector to the vector which invokes this method.
   The vector permanently has its components changed. }
+
 procedure TVector.Add(const V: TVector);
 begin
   FComponents[0] += V.GetX;
@@ -91,6 +98,7 @@ end;
 { TVector.Multiply(Scalar: double)
 
   Premanently transforms a vector by a scalar. }
+
 procedure TVector.Multiply(const Scalar: double);
 begin
   FComponents[0] *= Scalar;
@@ -100,6 +108,7 @@ end;
 { TVector.GetX
 
   Returns the x-component of a vector.}
+
 function TVector.GetX: double;
 begin
   Result := FComponents[0];
@@ -108,6 +117,7 @@ end;
 { TVector.GetY
 
   Returns the y-component of a vector. }
+
 function TVector.GetY: double;
 begin
   Result := FComponents[1];
