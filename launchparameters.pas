@@ -40,9 +40,9 @@ type
     FWaterDense: double; // water density in (kg/m³)
     FWaterVol: double; // water volume used for launch (m³)
 
-    function PhaseOne(BackCalc: boolean): TPhaseResult;
-    function PhaseThree(BackCalc: boolean): TPhaseResult;
-    function PhaseTwo(BackCalc: boolean): TPhaseResult;
+    function PhaseOne(const BackCalc: boolean): TPhaseResult;
+    function PhaseThree(const BackCalc: boolean): TPhaseResult;
+    function PhaseTwo(const BackCalc: boolean): TPhaseResult;
 
     procedure SetAdiIndex(const Value: double);
     procedure SetAirDense(const Value: double);
@@ -177,6 +177,11 @@ end;
                                 Helper Methods
 *******************************************************************************}
 
+{ TLaunchData.AppendToList(var List: TStringList; const Row: array of double)
+
+  Takes a target array and a closed array of floating point values. It will
+  append the closed array to the end of the target list. }
+
 procedure TLaunchData.AppendToList(var List: TStringList; const Row: array of double);
 const
   CellDelimer = ' ';
@@ -194,12 +199,13 @@ end;
                                   Calculations
 *******************************************************************************}
 
-{ TLaunchData.PhaseOne(BackCalc: boolean)
+{ TLaunchData.PhaseOne(BackCalc: boolean): TPhaseResult;
 
-  Simulates the first phase of the launch and returns an array with the first
-  element being the final velocity and the second element being the final
-  displacement. }
-function TLaunchData.PhaseOne(BackCalc: boolean): TPhaseResult;
+  Simulates the first phase of flight with an input switch determining whether
+  to store the simulation results. This function returns an array that contains
+  the displacement and velocity at the end of the phase. }
+
+function TLaunchData.PhaseOne(const BackCalc: boolean): TPhaseResult;
 begin
   // reset global time variable
   FTime := 0;
@@ -220,7 +226,13 @@ begin
   Result[Displacement] := FDisp.GetMagnitude;
 end;
 
-function TLaunchData.PhaseTwo(BackCalc: boolean): TPhaseResult;
+{ TLaunchData.PhaseTwo(BackCalc: boolean): TPhaseResult
+
+  Commence the second phase of simulation. Setting BackCalc to true will silence
+  any data logging which marginally increases performance. Returns the final
+  displacement and velocity at the end of the phase. }
+
+function TLaunchData.PhaseTwo(const BackCalc: boolean): TPhaseResult;
 
   function CalcPressure(const WaterMass: double; out Pressure: double): double;
   begin
@@ -296,7 +308,13 @@ begin
   Result[Displacement] := FDisp.GetMagnitude;
 end;
 
-function TLaunchData.PhaseThree(BackCalc: boolean): TPhaseResult;
+{ TLaunchData.PhaseThree(const BackCalc: boolean): TPhaseResult
+
+  Simulate the free flight of the rocket. There is no momentum being added to
+  the system via external forces. The only acceleration is that caused by drag
+  and local gravity. Returns the final displacement and velocity. }
+
+function TLaunchData.PhaseThree(const BackCalc: boolean): TPhaseResult;
 var
   VelCopy, Acc: TVector;
 begin
@@ -338,9 +356,11 @@ begin
   Result[Displacement] := FDisp.GetMagnitude;
 end;
 
-{ TLaunchData.RunSimulation
+{ TLaunchData.RunSimulation(const ActualDistance: double = 0): TSimulationResult
 
-  Run a simulation of the flight path without performing any solve routines. }
+  Runs the entire simulation. Depending on if the acutal distance is defined, it
+  will perform the solve routine. Returns an array that contains the velocity
+  and displacement at the end of each phase. }
 
 function TLaunchData.RunSimulation(const ActualDistance: double = 0): TSimulationResult;
 var

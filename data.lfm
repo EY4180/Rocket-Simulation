@@ -937,7 +937,7 @@ object MainMenu: TMainMenu
     Height = 488
     Top = 120
     Width = 848
-    ActivePage = TabSheet1
+    ActivePage = PresTab
     Font.CharSet = ANSI_CHARSET
     Font.Color = clBlack
     Font.Height = -12
@@ -945,9 +945,9 @@ object MainMenu: TMainMenu
     Font.Pitch = fpVariable
     Font.Quality = fqDraft
     ParentFont = False
-    TabIndex = 0
+    TabIndex = 1
     TabOrder = 11
-    object TabSheet1: TTabSheet
+    object PathTab: TTabSheet
       Caption = 'Flight Graph'
       ClientHeight = 460
       ClientWidth = 840
@@ -1019,7 +1019,7 @@ object MainMenu: TMainMenu
         Enabled = False
       end
     end
-    object TabSheet2: TTabSheet
+    object PresTab: TTabSheet
       Caption = 'Pressure Graph'
       ClientHeight = 460
       ClientWidth = 840

@@ -40,9 +40,9 @@ type
     PanInit: TGroupBox;
     PanMeasure: TGroupBox;
     PanResults: TGroupBox;
+    PathTab: TTabSheet;
+    PresTab: TTabSheet;
     RadProfile: TRadioGroup; // radio box to select user profile
-    TabSheet1: TTabSheet;
-    TabSheet2: TTabSheet;
     TxtAdiIndex: TLabeledEdit;
     TxtAirDen: TLabeledEdit;
     TxtAngle: TLabeledEdit;
@@ -115,7 +115,8 @@ begin
   SetTextBox; // read text boxes from profile
 end;
 
-{ TMainMenu.UpdateFlightPath(const Values: TStringList)
+{ TMainMenu.GetSeries(const Values: TStringList; var Series: TLineSeries;
+    const LineColor: array of TColor)
 
   This fills the flight path graph with the values from a string list. The list
   must have three values per line each separated by a space delimer. The values
