@@ -11,6 +11,7 @@ uses
 const
   ReportFolder = 'Report';
   ProfileFolder = 'Profiles';
+  ReportFile = 'Flight Report.pdf';
 
 type
   { TMainMenu }
@@ -291,7 +292,7 @@ begin
   Report := TReport.Create('Rocket Simulation Report');
   with Report do
   begin
-    FRepName := FRepDir + PathDelim + FormatDateTime('dddddd (hh-mm-ss)', Now) + '.pdf';
+    FRepName := FRepDir + PathDelim + ReportFile;
     DrawImage(FRepDir + PathDelim + ChtPath.Name + '.png');
 
     // write results to pdf

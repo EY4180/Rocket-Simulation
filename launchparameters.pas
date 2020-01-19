@@ -360,11 +360,12 @@ end;
 
   Runs the entire simulation. Depending on if the acutal distance is defined, it
   will perform the solve routine. Returns an array that contains the velocity
-  and displacement at the end of each phase. }
+  and displacement at the end of each phase. The solved result is calculated to
+  an absolute error margin of 0.0000000001. }
 
 function TLaunchData.RunSimulation(const ActualDistance: double = 0): TSimulationResult;
 var
-  StepMultiplier: double = 0.1; // use initially high step value
+  StepMultiplier: double = 0.1;
   StepValue: double = 10;
   Error: double = 0.0000000001;
   IsBelow: boolean = False;
