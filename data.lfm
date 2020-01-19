@@ -53,7 +53,7 @@ object MainMenu: TMainMenu
     )
     OnClick = UpdateTextBox
     ParentFont = False
-    TabOrder = 2
+    TabOrder = 3
   end
   object ChkGoalSeek: TCheckBox
     Left = 464
@@ -70,7 +70,8 @@ object MainMenu: TMainMenu
     Font.Style = [fsBold]
     OnChange = EnableGoalSeek
     ParentFont = False
-    TabOrder = 7
+    TabOrder = 6
+    TabStop = False
   end
   object BtnRun: TButton
     Left = 958
@@ -87,7 +88,7 @@ object MainMenu: TMainMenu
     Font.Style = [fsBold]
     OnClick = Run
     ParentFont = False
-    TabOrder = 6
+    TabOrder = 10
     TabStop = False
   end
   object BtnGenRep: TButton
@@ -106,7 +107,7 @@ object MainMenu: TMainMenu
     Font.Style = [fsBold]
     OnClick = GenerateReport
     ParentFont = False
-    TabOrder = 9
+    TabOrder = 8
     TabStop = False
   end
   object PanResults: TGroupBox
@@ -126,7 +127,7 @@ object MainMenu: TMainMenu
     Font.Quality = fqDraft
     Font.Style = [fsBold]
     ParentFont = False
-    TabOrder = 3
+    TabOrder = 4
     object LEditVP1: TLabeledEdit
       Left = 8
       Height = 15
@@ -153,6 +154,7 @@ object MainMenu: TMainMenu
       ParentFont = False
       ReadOnly = True
       TabOrder = 0
+      TabStop = False
     end
     object LEditDP1: TLabeledEdit
       Left = 8
@@ -180,6 +182,7 @@ object MainMenu: TMainMenu
       ParentFont = False
       ReadOnly = True
       TabOrder = 4
+      TabStop = False
     end
     object LEditVP2: TLabeledEdit
       Left = 181
@@ -207,6 +210,7 @@ object MainMenu: TMainMenu
       ParentFont = False
       ReadOnly = True
       TabOrder = 1
+      TabStop = False
     end
     object LEditDP2: TLabeledEdit
       Left = 181
@@ -234,6 +238,7 @@ object MainMenu: TMainMenu
       ParentFont = False
       ReadOnly = True
       TabOrder = 5
+      TabStop = False
     end
     object LEditTotalD: TLabeledEdit
       Left = 354
@@ -261,6 +266,7 @@ object MainMenu: TMainMenu
       ParentFont = False
       ReadOnly = True
       TabOrder = 6
+      TabStop = False
     end
     object LEditTotalH: TLabeledEdit
       Left = 354
@@ -287,7 +293,8 @@ object MainMenu: TMainMenu
       Font.Quality = fqDraft
       ParentFont = False
       ReadOnly = True
-      TabOrder = 3
+      TabOrder = 2
+      TabStop = False
     end
     object LEditCorFac: TLabeledEdit
       Left = 527
@@ -317,6 +324,7 @@ object MainMenu: TMainMenu
       ParentFont = False
       ReadOnly = True
       TabOrder = 7
+      TabStop = False
     end
     object LEditTime: TLabeledEdit
       Left = 527
@@ -343,7 +351,8 @@ object MainMenu: TMainMenu
       Font.Quality = fqDraft
       ParentFont = False
       ReadOnly = True
-      TabOrder = 2
+      TabOrder = 3
+      TabStop = False
     end
   end
   object LEditActDist: TLabeledEdit
@@ -372,7 +381,8 @@ object MainMenu: TMainMenu
     Font.Pitch = fpVariable
     Font.Quality = fqDraft
     ParentFont = False
-    TabOrder = 8
+    TabOrder = 7
+    TabStop = False
     OnExit = ValidateTextBox
   end
   object PanConst: TGroupBox
@@ -585,7 +595,7 @@ object MainMenu: TMainMenu
     Font.Quality = fqDraft
     Font.Style = [fsBold]
     ParentFont = False
-    TabOrder = 1
+    TabOrder = 2
     object TxtRktDiam: TLabeledEdit
       Left = 200
       Height = 23
@@ -807,7 +817,7 @@ object MainMenu: TMainMenu
     Font.Quality = fqDraft
     Font.Style = [fsBold]
     ParentFont = False
-    TabOrder = 4
+    TabOrder = 5
     object TxtEuler: TLabeledEdit
       Left = 200
       Height = 23
@@ -911,7 +921,7 @@ object MainMenu: TMainMenu
     Font.Style = [fsBold]
     OnClick = Clear
     ParentFont = False
-    TabOrder = 5
+    TabOrder = 9
     TabStop = False
   end
   object BtnExit: TButton
@@ -929,7 +939,7 @@ object MainMenu: TMainMenu
     Font.Style = [fsBold]
     OnClick = Exit
     ParentFont = False
-    TabOrder = 10
+    TabOrder = 11
     TabStop = False
   end
   object GraphControl: TPageControl
@@ -937,7 +947,8 @@ object MainMenu: TMainMenu
     Height = 488
     Top = 120
     Width = 848
-    ActivePage = PresTab
+    TabStop = False
+    ActivePage = PathTab
     Font.CharSet = ANSI_CHARSET
     Font.Color = clBlack
     Font.Height = -12
@@ -945,8 +956,8 @@ object MainMenu: TMainMenu
     Font.Pitch = fpVariable
     Font.Quality = fqDraft
     ParentFont = False
-    TabIndex = 1
-    TabOrder = 11
+    TabIndex = 0
+    TabOrder = 1
     object PathTab: TTabSheet
       Caption = 'Flight Graph'
       ClientHeight = 460

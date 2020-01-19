@@ -69,7 +69,7 @@ type
     procedure Run;
     procedure SetTextBox;
     procedure UpdateTextBox;
-    procedure ValidateTextBox(Sender: TLabeledEdit);
+    procedure ValidateTextBox(const Sender: TLabeledEdit);
   private
     FProDir: string; // save directory for user profiles
     FProName: string; // current profile name
@@ -89,63 +89,14 @@ type
 
 implementation
 
-{ TMainMenu.FormCreate(Sender: TObject)
-
-  This is called on form creation. It sets up the profile name and loads the
-  correct values into the textboxes. Only textboxes that are enabled will have
-  values initialized. }
-
-procedure TMainMenu.FormCreate;
-begin
-  SetCurrentDir(ExtractFileDir(ParamStr(0)));
-  FRepDir := ExtractFileDir(ParamStr(0)) + PathDelim + ReportFolder;
-  FProDir := ExtractFileDir(ParamStr(0)) + PathDelim + ProfileFolder;
-
-  FActPath := TLineSeries.Create(ChtPath);
-  FPredPath := TLineSeries.Create(ChtPath);
-  FPresPath := TLineSeries.Create(ChtPresPath);
-
-  FSimulation := TLaunchData.Create;
-
-  if not DirectoryExists(FRepDir) then
-    CreateDir(FRepDir);
-  if not DirectoryExists(FProDir) then
-    CreateDir(FProDir);
-
-  SetConfigName; // update name of profile to be read
-  SetTextBox; // read text boxes from profile
-end;
-
-{ TMainMenu.GetSeries(const Values: TStringList; var Series: TLineSeries;
-    const LineColor: array of TColor)
-
-  This fills the flight path graph with the values from a string list. The list
-  must have three values per line each separated by a space delimer. The values
-  correspond to [phase #] [x distance] [y distance]. Phase # is necessary to
-  paint the graph a different color for each phase. }
-
-procedure TMainMenu.GetSeries(const Values: TStringList; var Series: TLineSeries;
-  const LineColor: array of TColor);
-var
-  Buffer: string;
-  X, Y: double;
-  Phase: integer;
-begin
-  Series.Clear;
-  Series.BeginUpdate;
-  Series.ColorEach := ceLineBefore;
-  for Buffer in Values do
-  begin
-    SScanf(Buffer, '%d %f %f', [@Phase, @X, @Y]);
-    Series.AddXY(X, Y, IntToStr(Phase), LineColor[Phase]);
-  end;
-  Series.EndUpdate;
-end;
+{*******************************************************************************
+                               Profile Selection
+*******************************************************************************}
 
 { TMainMenu.SetConfigName
 
   Constructs the name of the file that will be used to save and load values from
-  textboxes. It will also create the file if it is not on disk already }
+  textboxes. It will also create the file if it is not on disk already. }
 
 procedure TMainMenu.SetConfigName;
 var
@@ -161,10 +112,15 @@ begin
   end;
 end;
 
-{ TMainMenu.SaveToDisk(FileName: string; TextBox: TEdit)
+{*******************************************************************************
+                                    Text Box
+*******************************************************************************}
+
+{ TMainMenu.SaveToDisk(Sender: TLabeledEdit)
 
   Saves the contents of a textbox to a profile on disk. If the entry of a
-  textbox already exits it updates the value. }
+  textbox already exits it updates the value. If the value does not exist then
+  a new entry is created. }
 
 procedure TMainMenu.SaveToDisk(Sender: TLabeledEdit);
 var
@@ -202,6 +158,12 @@ begin
   CloseFile(FilePointer);
 end;
 
+{ TMainMenu.ReadFromDisk(var Sender: TLabeledEdit)
+
+  Searches for the value of the sender in the config file. If the value is
+  defined then the textbox is initialized to it. If not defined, an empty string
+  is used for initialization. }
+
 procedure TMainMenu.ReadFromDisk(var Sender: TLabeledEdit);
 var
   FilePointer: TextFile;
@@ -233,7 +195,12 @@ begin
   end;
 end;
 
-procedure TMainMenu.ValidateTextBox(Sender: TLabeledEdit);
+{ TMainMenu.ValidateTextBox(const Sender: TLabeledEdit)
+
+  Saves the value of a textbox to the config file. If the value is not a number
+  then an error message is shown and the focus is reset to the textbox. }
+
+procedure TMainMenu.ValidateTextBox(const Sender: TLabeledEdit);
 var
   IsDouble: boolean = True;
 begin
@@ -257,6 +224,97 @@ begin
   end;
 end;
 
+{ TMainMenu.UpdateTextBox
+
+  Called when the profile is changed. It will update the configuration file name
+  and set the textboxes according to the new profile. }
+
+procedure TMainMenu.UpdateTextBox;
+begin
+  SetConfigName;
+  SetTextBox;
+end;
+
+{ TMainMenu.SetTextBox
+
+  Cycles through every text box in the form and loads the correct value from a
+  configuration file. Values are only loaded if the textbox is not read-only and
+  is of class TLabeledEdit. }
+
+procedure TMainMenu.SetTextBox;
+var
+  Component: TComponent;
+  ComponentID: byte;
+begin
+  for ComponentID := 0 to Pred(ComponentCount) do
+  begin
+    Component := Components[ComponentID];
+    if Component is TLabeledEdit and not TLabeledEdit(Component).ReadOnly then
+      ReadFromDisk(TLabeledEdit(Component));
+  end;
+end;
+
+{*******************************************************************************
+                                 Helper Methods
+*******************************************************************************}
+
+{ TMainMenu.GetSeries(const Values: TStringList; var Series: TLineSeries;
+    const LineColor: array of TColor)
+
+  Initializes a line series with the values stored in a string list. The list
+  must be formatted with three values: [PhaseNo][X][Y]. These values must be
+  space separated. Depending on the phase number, a different color will be
+  assigned to the line. }
+
+procedure TMainMenu.GetSeries(const Values: TStringList; var Series: TLineSeries;
+  const LineColor: array of TColor);
+var
+  Buffer: string;
+  X, Y: double;
+  Phase: integer;
+begin
+  Series.Clear;
+  Series.BeginUpdate;
+  Series.ColorEach := ceLineBefore;
+  for Buffer in Values do
+  begin
+    SScanf(Buffer, '%d %f %f', [@Phase, @X, @Y]);
+    Series.AddXY(X, Y, IntToStr(Phase), LineColor[Phase]);
+  end;
+  Series.EndUpdate;
+end;
+
+{*******************************************************************************
+                                    Controls
+*******************************************************************************}
+
+{ TMainMenu.FormCreate(Sender: TObject)
+
+  This is called on form creation. It sets up the profile name and loads the
+  correct values into the textboxes. Only textboxes that are enabled will have
+  values initialized. }
+
+procedure TMainMenu.FormCreate;
+begin
+  SetCurrentDir(ExtractFileDir(ParamStr(0)));
+  FRepDir := ExtractFileDir(ParamStr(0)) + PathDelim + ReportFolder;
+  FProDir := ExtractFileDir(ParamStr(0)) + PathDelim + ProfileFolder;
+
+  FActPath := TLineSeries.Create(ChtPath);
+  FPredPath := TLineSeries.Create(ChtPath);
+  FPresPath := TLineSeries.Create(ChtPresPath);
+
+  FSimulation := TLaunchData.Create;
+
+  if not DirectoryExists(FRepDir) then
+    CreateDir(FRepDir);
+  if not DirectoryExists(FProDir) then
+    CreateDir(FProDir);
+
+  SetConfigName; // update name of profile to be read
+  SetTextBox; // read text boxes from profile
+end;
+
 { TMainMenu.Exit
 
   Terminate the program and free all objects still in use }
@@ -265,54 +323,6 @@ procedure TMainMenu.Exit;
 begin
   if Application.MessageBox('Exit Program?', 'Confirmation', MB_YESNO) = idYes then
     Application.Terminate;
-end;
-
-{ TMainMenu.EnableGoalSeek(Sender: TCheckBox)
-
-  Turns the back-calculation function on or off. In the on state, the program
-  will alter the drag coefficient until it reaches the actual distance specified
-  by the user. }
-
-procedure TMainMenu.EnableGoalSeek(Sender: TCheckBox);
-var
-  EnableSeek: boolean;
-begin
-  EnableSeek := Sender.State = cbChecked;
-  LEditActDist.Enabled := EnableSeek;
-  LEditCorFac.Enabled := EnableSeek;
-end;
-
-procedure TMainMenu.GenerateReport;
-var
-  Report: TReport;
-  Body: TStringList;
-begin
-  Body := TStringList.Create;
-
-  Report := TReport.Create('Rocket Simulation Report');
-  with Report do
-  begin
-    FRepName := FRepDir + PathDelim + ReportFile;
-    DrawImage(FRepDir + PathDelim + ChtPath.Name + '.png');
-
-    // write results to pdf
-    GetPanelData(PanConst, Body);
-    AddText(PanConst.Caption, Body);
-    GetPanelData(PanInit, Body);
-    AddText(PanInit.Caption, Body);
-    GetPanelData(PanMeasure, Body);
-    AddText(PanMeasure.Caption, Body);
-    GetPanelData(PanResults, Body);
-    AddText(PanResults.Caption, Body);
-
-    if FileExists(FRepName) then
-      DeleteFile(FRepName);
-    Save(FRepName);
-    Free;
-  end;
-
-  Body.Free;
-  Application.MessageBox(PChar(FRepDir), 'Report Saved', MB_OK);
 end;
 
 { TMainMenu.Clear
@@ -344,20 +354,12 @@ begin
   end;
 end;
 
-procedure TMainMenu.UpdateTextBox;
-begin
-  SetConfigName; // update name of profile to be read
-  SetTextBox; // set textboxes to default values
-end;
+{ TMainMenu.Run
 
-procedure TMainMenu.SaveGraph(const Sender: TChart);
-var
-  Image: TRasterImage;
-begin
-  Image := Sender.SaveToImage(TPortableNetworkGraphic);
-  Image.SaveToFile(FRepDir + PathDelim + Sender.Name + '.' + Image.GetFileExtensions);
-  Image.Free;
-end;
+  Runs the simulation if all the textboxes contain valid values. A textbox is
+  valid if all of them contain a positive number. Additionally, the initial
+  volume of water must be less than the bottle capacity and the actual distance
+  must be greater than the tube length. }
 
 procedure TMainMenu.Run;
 var
@@ -393,6 +395,12 @@ begin
     SaveGraph(ChtPresPath);
   end;
 end;
+
+{ TMainMenu.GetSimulationResults(BackCalc: boolean)
+
+  Runs the simulation and stores the results into the FSimulationResults field.
+  It also handles the construction of the graphs and saving said graphs to the
+  reports folder. }
 
 procedure TMainMenu.GetSimulationResults(BackCalc: boolean);
 var
@@ -453,23 +461,78 @@ begin
   BtnGenRep.Enabled := True;
 end;
 
-{ TMainMenu.SetTextBox
+{ TMainMenu.EnableGoalSeek(Sender: TCheckBox)
 
-  Cycles through every text box in the form and loads the correct value from a
-  configuration file. }
+  Turns the back-calculation function on or off. In the on state, the program
+  will alter the drag coefficient until it reaches the actual distance specified
+  by the user. }
 
-procedure TMainMenu.SetTextBox;
+procedure TMainMenu.EnableGoalSeek(Sender: TCheckBox);
 var
-  Component: TComponent;
-  ComponentID: byte;
+  EnableSeek: boolean;
 begin
-  for ComponentID := 0 to Pred(ComponentCount) do
-  begin
-    Component := Components[ComponentID];
-    if Component is TLabeledEdit and not TLabeledEdit(Component).ReadOnly then
-      ReadFromDisk(TLabeledEdit(Component));
-  end;
+  EnableSeek := Sender.State = cbChecked;
+  LEditActDist.Enabled := EnableSeek;
+  LEditCorFac.Enabled := EnableSeek;
 end;
+
+{ TMainMenu.GenerateReport
+
+  Generates a .pdf in the reports folder. It is only a single page and contains
+  the flight graph and simulation resuts. Without the Courier Prime fonts
+  package, no report can be created. }
+
+procedure TMainMenu.GenerateReport;
+var
+  Report: TReport;
+  Body: TStringList;
+begin
+  Body := TStringList.Create;
+
+  Report := TReport.Create('Rocket Simulation Report');
+  with Report do
+  begin
+    FRepName := FRepDir + PathDelim + ReportFile;
+    DrawImage(FRepDir + PathDelim + ChtPath.Name + '.png');
+
+    // write results to pdf
+    GetPanelData(PanConst, Body);
+    AddText(PanConst.Caption, Body);
+    GetPanelData(PanInit, Body);
+    AddText(PanInit.Caption, Body);
+    GetPanelData(PanMeasure, Body);
+    AddText(PanMeasure.Caption, Body);
+    GetPanelData(PanResults, Body);
+    AddText(PanResults.Caption, Body);
+
+    if FileExists(FRepName) then
+      DeleteFile(FRepName);
+    Save(FRepName);
+    Free;
+  end;
+
+  Body.Free;
+  Application.MessageBox(PChar(FRepDir), 'Report Saved', MB_OK);
+end;
+
+{ TMainMenu.SaveGraph(const Sender: TChart)
+
+  Save sender as a .png file with the senders identifier as the file name. }
+
+procedure TMainMenu.SaveGraph(const Sender: TChart);
+var
+  Image: TRasterImage;
+begin
+  Image := Sender.SaveToImage(TPortableNetworkGraphic);
+  Image.SaveToFile(FRepDir + PathDelim + Sender.Name + '.' + Image.GetFileExtensions);
+  Image.Free;
+end;
+
+{ GetPanelData(const Sender: TGroupBox; var Data: TStringList)
+
+  Initialized the data list to contain the label name and textbox value of all
+  components inside a specific group box. These values are right-justified to
+  50 spaces. }
 
 procedure TMainMenu.GetPanelData(const Sender: TGroupBox; var Data: TStringList);
 const
