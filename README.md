@@ -9,7 +9,7 @@ Like in the original project, the ability to goal-seek is avaliable.
 Overall, I aimed to create a portable version of the Flight Simulation Assignment that used propper programming constructs to simulate the flight of a rocket as opposed to simply using excel. This should be used as a drop-in replacement for the assignment and I hope either the program or code is of use to you. 
 
 ## How To Use
-The .exe is all that is needed to run this program. There are 3 folders that will be created in the directory of the .exe at runtime. These are: Profiles, Fonts and Reports. The contents of these folders are self explanatory and store your values for the simulation.
+The .exe is all that is needed to run this program. There are 3 folders that will be created in the directory of the .exe at runtime. These are: Profiles, Fonts and Reports.
 
 ## To Do List
 I stil need to tidy up the user input validation a little bit. For example it is still possible to enter an actual distance that is less than the lenght of the tube. Additionally there is an upper-bound to the rockets distance that if reached causes the program to behave unexpectedly. No checks have been implemented on the initial volume of water being less than the capacity of the bottle either.
