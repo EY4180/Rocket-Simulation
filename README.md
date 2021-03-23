@@ -1,4 +1,4 @@
-# ENSC2001 Rocket Simulation
+# Rocket Simulation
 ## Introduction
 This was just a small project I used to learn how to use forms in pascal. The program is able to run a simulation of a water bottle's flight in 2D. It will report back to you the total distance travelled, max height, and the respective velocitys/displacements at the end of each phase of flight. 
 
